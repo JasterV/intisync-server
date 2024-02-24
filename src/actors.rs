@@ -1,3 +1,6 @@
+pub mod controller;
+pub mod toy;
+
 use crate::sessions::port::SessionStore;
 use serde::{Deserialize, Serialize};
 use socketioxide::{
@@ -56,5 +59,10 @@ where
             socket.disconnect().ok();
             return;
         }
+    };
+
+    match role {
+        Role::Toy => toy::on_connect::<T>(socket),
+        Role::Controller => controller::on_connect::<T>(socket, io),
     };
 }
