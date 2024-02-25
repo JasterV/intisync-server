@@ -17,7 +17,7 @@ pub enum JoinSessionErrorKind {
     SessionNotFound,
     SessionFull,
     ServerError,
-    ToyResponseTimeout,
+    HubResponseTimeout,
     Rejected,
 }
 

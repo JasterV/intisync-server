@@ -61,7 +61,7 @@ where
         }
         Err(error) => {
             error!(%error, "Failed to ask client if controller can join the session");
-            return JoinSessionResponse::with_err(JoinSessionErrorKind::ToyResponseTimeout);
+            return JoinSessionResponse::with_err(JoinSessionErrorKind::HubResponseTimeout);
         }
     };
 
@@ -79,7 +79,7 @@ where
     }
 
     if let Err(error) = socket.emit_to_room(session_id.into(), "controller_joined".into(), ()) {
-        error!(%error, "Controller failed to send join confirmation to toy");
+        error!(%error, "Controller failed to send join confirmation to hub");
         return JoinSessionResponse::with_err(JoinSessionErrorKind::ServerError);
     }
 
@@ -266,7 +266,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn can_join_a_session_if_toy_accepts() {
+    async fn can_join_a_session_if_hub_accepts() {
         let mut client_socket = MockClientSocket::new();
         let mut global_socket = MockGlobalSocket::new();
         let mut sessions = MockSessionStore::new();
@@ -338,7 +338,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn do_not_join_a_session_if_toy_rejects() {
+    async fn do_not_join_a_session_if_hub_rejects() {
         let mut client_socket = MockClientSocket::new();
         let mut global_socket = MockGlobalSocket::new();
         let mut sessions = MockSessionStore::new();
@@ -396,7 +396,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn return_toy_timeout_error_if_toy_returns_an_error() {
+    async fn return_hub_timeout_error_if_hub_returns_an_error() {
         let mut client_socket = MockClientSocket::new();
         let mut global_socket = MockGlobalSocket::new();
         let mut sessions = MockSessionStore::new();
@@ -448,7 +448,7 @@ mod tests {
         assert_eq!(
             result,
             JoinSessionResponse::Error {
-                kind: JoinSessionErrorKind::ToyResponseTimeout
+                kind: JoinSessionErrorKind::HubResponseTimeout
             }
         );
     }
