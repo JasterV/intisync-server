@@ -2,9 +2,9 @@ name: Rust
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,11 +12,23 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Install cargo make
-      run: cargo install cargo-make
-    - name: Clippy
-      run: cargo make clippy
-    - name: Run tests
-      run: cargo make test
+      - uses: actions/checkout@v3
+      - name: Install cargo make
+        run: cargo install cargo-make
+      - name: Clippy
+        run: cargo make --profile ci clippy
+      - name: Format
+        run: cargo make --profile ci format-check
+      - name: Run tests
+        run: cargo make --profile ci test
