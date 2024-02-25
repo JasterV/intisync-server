@@ -56,6 +56,8 @@ impl MessageWithAck for JoinSessionPermissionRequest {
     type Ack = JoinSessionPermissionResponse;
 }
 
+// TODO: Refactor this command once we know what is the preferred way clients should receive
+// vibration data
 #[derive(Serialize, Deserialize)]
 pub struct VibrateCmd {
     pub value: f32,
