@@ -18,7 +18,7 @@ tracing-subscriber = "0.3.18"
 uuid = { version = "1.7.0", features = ["v4", "serde"] }
 mobc = "0.8.3"
 mobc-redis = "0.8.2"
-serde_json = "1.0.113"
+serde_json = "1.0.114"
 
 [dev-dependencies]
 mockall = "0.12.1"
