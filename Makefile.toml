@@ -19,3 +19,8 @@ args = ["build", "${@}"]
 [tasks.test]
 command = "cargo"
 args = ["test", "${@}"]
+
+[tasks.format-check]
+description = "Runs the cargo rustfmt plugin during CI."
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
