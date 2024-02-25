@@ -59,7 +59,7 @@ mod tests {
 
     use super::{on_disconnect, on_start_session};
     use crate::{
-        actors::toy::messages::{StartSessionError, StartSessionResponse},
+        actors::hub::messages::{StartSessionError, StartSessionResponse},
         sessions::port::MockSessionStore,
         socket::port::MockClientSocket,
     };
