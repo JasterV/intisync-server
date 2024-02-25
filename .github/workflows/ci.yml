@@ -1,4 +1,4 @@
-name: Rust
+name: CI
 
 on:
   push:
@@ -15,7 +15,11 @@ jobs:
 
     services:
       redis:
-        image: redis
+        image: bitnami/redis:latest
+        env:
+          ALLOW_EMPTY_PASSWORD: yes
+          REDIS_PORT_NUMBER: 6379
+          REDIS_DATABASE: redis
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
