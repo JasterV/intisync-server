@@ -1,8 +1,7 @@
-use std::net::Ipv4Addr;
-
 use serde::Deserialize;
+use std::sync::Arc;
 
-#[derive(Clone, Copy, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Config {
     pub port: u16,
     pub controller: ControllerConfig,
@@ -15,9 +14,9 @@ pub struct ControllerConfig {
     pub session_join_request_timeout: u64,
 }
 
-#[derive(Clone, Copy, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct RedisConfig {
-    pub host: Ipv4Addr,
+    pub host: Arc<str>,
     pub port: u16,
     pub cache_pool_expire_seconds: u64,
     pub cache_pool_max_open: u64,
@@ -27,7 +26,7 @@ pub struct RedisConfig {
 
 impl RedisConfig {
     pub fn addr(&self) -> String {
-        format!("redis://localhost:{}/", self.port)
+        format!("redis://{}:{}/", self.host.trim(), self.port)
     }
 }
 

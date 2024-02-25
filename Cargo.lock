@@ -650,6 +650,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "intisync-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "config",
+ "mobc",
+ "mobc-redis",
+ "mockall",
+ "serde",
+ "serde_json",
+ "socketioxide",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1284,26 +1304,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "config",
- "mobc",
- "mobc-redis",
- "mockall",
- "serde",
- "serde_json",
- "socketioxide",
- "thiserror",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "uuid",
 ]
 
 [[package]]

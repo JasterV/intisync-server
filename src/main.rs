@@ -18,7 +18,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
     tracing::subscriber::set_global_default(FmtSubscriber::default())?;
 
-    let pool = redis::pool::connect(&config.redis.addr(), ConnectionConfig::from(config.redis))?;
+    let pool = redis::pool::connect(
+        &config.redis.addr(),
+        ConnectionConfig::from(config.redis.clone()),
+    )?;
 
     let sessions = RedisSessionStore::new(
         pool,
@@ -29,7 +32,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let (layer, io) = SocketIoBuilder::new()
         .with_state(sessions)
-        .with_state(config)
+        .with_state(config.clone())
         .build_layer();
 
     io.ns("/", {
