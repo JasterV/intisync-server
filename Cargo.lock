@@ -662,6 +662,7 @@ dependencies = [
  "serde",
  "serde_json",
  "socketioxide",
+ "test-context",
  "thiserror",
  "tokio",
  "tracing",
@@ -1451,6 +1452,26 @@ name = "termtree"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
+
+[[package]]
+name = "test-context"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85d1752a8c63784767722c352c0c778fbccb9be11101a2c68dcafda8fbcc3946"
+dependencies = [
+ "futures",
+ "test-context-macros",
+]
+
+[[package]]
+name = "test-context-macros"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac0d6a3b7c5389d08e15cbd187798384ea74918722d68a0d7fd1fb43569b33aa"
+dependencies = [
+ "quote",
+ "syn 2.0.49",
+]
 
 [[package]]
 name = "thiserror"

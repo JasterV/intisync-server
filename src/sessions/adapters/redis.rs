@@ -98,6 +98,8 @@ impl SessionStore for RedisSessionStore {
 
 #[cfg(test)]
 mod tests {
+    use test_context::{test_context, AsyncTestContext};
+
     use super::RedisSessionStore;
     use crate::{
         configuration::Config,
@@ -107,37 +109,41 @@ mod tests {
         },
     };
 
-    fn store() -> RedisSessionStore {
-        let config = Config::load();
-        let pool = pool::connect(&config.redis.addr(), config.redis.into())
-            .expect("Can't connect to redis");
-        RedisSessionStore::new(
-            pool,
-            super::Config {
-                session_ttl: config.session_ttl,
-            },
-        )
+    impl AsyncTestContext for RedisSessionStore {
+        async fn setup() -> Self {
+            let config = Config::load();
+            let pool = pool::connect(&config.redis.addr(), config.redis.into())
+                .expect("Can't connect to redis");
+            RedisSessionStore::new(
+                pool,
+                super::Config {
+                    session_ttl: config.session_ttl,
+                },
+            )
+        }
+
+        async fn teardown(self) {}
     }
 
+    #[test_context(RedisSessionStore)]
     #[tokio::test]
-    async fn can_create_session() {
-        let store = store();
+    async fn can_create_session(store: &mut RedisSessionStore) {
         let uuid = store.create_session().await.unwrap();
         assert!(store.exists_session(uuid).await.unwrap());
     }
 
+    #[test_context(RedisSessionStore)]
     #[tokio::test]
-    async fn can_delete_session() {
-        let store = store();
+    async fn can_delete_session(store: &mut RedisSessionStore) {
         let uuid = store.create_session().await.unwrap();
         assert!(store.exists_session(uuid).await.unwrap());
         assert!(store.delete_session(uuid).await.is_ok());
         assert!(!store.exists_session(uuid).await.unwrap());
     }
 
+    #[test_context(RedisSessionStore)]
     #[tokio::test]
-    async fn create_session_with_correct_initial_state() {
-        let store = store();
+    async fn create_session_with_correct_initial_state(store: &mut RedisSessionStore) {
         let uuid = store.create_session().await.unwrap();
         assert_eq!(
             store.session_state(uuid).await.unwrap().unwrap(),
@@ -145,9 +151,9 @@ mod tests {
         );
     }
 
+    #[test_context(RedisSessionStore)]
     #[tokio::test]
-    async fn can_update_session_state() {
-        let store = store();
+    async fn can_update_session_state(store: &mut RedisSessionStore) {
         let uuid = store.create_session().await.unwrap();
         assert!(store
             .update_session_state(uuid, SessionState::InProgress)
