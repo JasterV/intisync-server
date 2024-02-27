@@ -157,6 +157,7 @@ mod tests {
         sessions::port::{MockSessionStore, SessionState},
         socket::port::{DummyMockError, MockClientSocket, MockGlobalSocket},
     };
+    use futures_util::FutureExt;
     use mockall::predicate::eq;
     use socketioxide::extract::Data;
     use std::time::Duration;
@@ -212,7 +213,7 @@ mod tests {
         sessions
             .expect_session_state()
             .times(1)
-            .returning(|_| Box::pin(async { Ok(None) }));
+            .returning(|_| async { Ok(None) }.boxed());
 
         let result = on_join_session(
             client_socket,
@@ -248,7 +249,7 @@ mod tests {
         sessions
             .expect_session_state()
             .times(1)
-            .returning(|_| Box::pin(async { Ok(Some(SessionState::InProgress)) }));
+            .returning(|_| async { Ok(Some(SessionState::InProgress)) }.boxed());
 
         let result = on_join_session(
             client_socket,
@@ -284,7 +285,7 @@ mod tests {
         sessions
             .expect_session_state()
             .times(1)
-            .returning(|_| Box::pin(async { Ok(Some(SessionState::WaitingForController)) }));
+            .returning(|_| async { Ok(Some(SessionState::WaitingForController)) }.boxed());
 
         global_socket
             .expect_emit_to_room_with_ack()
@@ -299,7 +300,7 @@ mod tests {
                     config.controller.session_join_request_timeout,
                 )),
             )
-            .returning(|_, _, _, _| Box::pin(async { Ok(JoinSessionPermissionResponse::Accept) }));
+            .returning(|_, _, _, _| async { Ok(JoinSessionPermissionResponse::Accept) }.boxed());
 
         client_socket.expect_join().times(1).return_const(Ok(()));
 
@@ -307,7 +308,7 @@ mod tests {
             .expect_update_session_state()
             .times(1)
             .with(eq(join_request.session_id), eq(SessionState::InProgress))
-            .returning(|_, _| Box::pin(async { Ok(()) }));
+            .returning(|_, _| async { Ok(()) }.boxed());
 
         client_socket
             .expect_emit_to_room()
@@ -356,7 +357,7 @@ mod tests {
         sessions
             .expect_session_state()
             .times(1)
-            .returning(|_| Box::pin(async { Ok(Some(SessionState::WaitingForController)) }));
+            .returning(|_| async { Ok(Some(SessionState::WaitingForController)) }.boxed());
 
         global_socket
             .expect_emit_to_room_with_ack()
@@ -371,7 +372,7 @@ mod tests {
                     config.controller.session_join_request_timeout,
                 )),
             )
-            .returning(|_, _, _, _| Box::pin(async { Ok(JoinSessionPermissionResponse::Reject) }));
+            .returning(|_, _, _, _| async { Ok(JoinSessionPermissionResponse::Reject) }.boxed());
 
         client_socket.expect_join().never();
         sessions.expect_update_session_state().never();
@@ -414,7 +415,7 @@ mod tests {
         sessions
             .expect_session_state()
             .times(1)
-            .returning(|_| Box::pin(async { Ok(Some(SessionState::WaitingForController)) }));
+            .returning(|_| async { Ok(Some(SessionState::WaitingForController)) }.boxed());
 
         global_socket
             .expect_emit_to_room_with_ack()
@@ -429,7 +430,7 @@ mod tests {
                     config.controller.session_join_request_timeout,
                 )),
             )
-            .returning(|_, _, _, _| Box::pin(async { Err(DummyMockError) }));
+            .returning(|_, _, _, _| async { Err(DummyMockError) }.boxed());
 
         client_socket.expect_join().never();
         sessions.expect_update_session_state().never();

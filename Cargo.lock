@@ -656,6 +656,7 @@ dependencies = [
  "anyhow",
  "axum",
  "config",
+ "futures-util",
  "mobc",
  "mobc-redis",
  "mockall",
