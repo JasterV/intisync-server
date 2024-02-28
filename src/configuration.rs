@@ -18,6 +18,8 @@ pub struct ControllerConfig {
 pub struct RedisConfig {
     pub host: Arc<str>,
     pub port: u16,
+    pub user: Arc<str>,
+    pub password: Arc<str>,
     pub cache_pool_expire_seconds: u64,
     pub cache_pool_max_open: u64,
     pub cache_pool_max_idle: u64,
@@ -26,7 +28,13 @@ pub struct RedisConfig {
 
 impl RedisConfig {
     pub fn addr(&self) -> String {
-        format!("redis://{}:{}/", self.host.trim(), self.port)
+        format!(
+            "redis://{}:{}@{}:{}/",
+            self.user.trim(),
+            self.password.trim(),
+            self.host.trim(),
+            self.port
+        )
     }
 }
 

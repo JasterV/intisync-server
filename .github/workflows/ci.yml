@@ -17,9 +17,9 @@ jobs:
       redis:
         image: bitnami/redis:latest
         env:
-          ALLOW_EMPTY_PASSWORD: yes
           REDIS_PORT_NUMBER: 6379
           REDIS_DATABASE: redis
+          REDIS_PASSWORD: redis
         ports:
           - 6379:6379
         options: >-

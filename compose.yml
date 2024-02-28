@@ -4,6 +4,6 @@ services:
     ports:
       - 6379:6379
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PASSWORD=potatoe
       - REDIS_PORT_NUMBER=6379
       - REDIS_DATABASE=redis
