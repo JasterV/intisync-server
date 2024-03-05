@@ -1,14 +1,8 @@
-use mobc::Pool;
-use mobc_redis::redis;
-use mobc_redis::redis::AsyncCommands;
-use mobc_redis::redis::FromRedisValue;
-use mobc_redis::redis::RedisError;
-use mobc_redis::RedisConnectionManager;
-use std::time::Duration;
+use deadpool::managed::PoolError;
+use deadpool::Runtime;
+use deadpool_redis::redis::{self, AsyncCommands, FromRedisValue, RedisError};
 
-use crate::configuration::RedisConfig;
-
-pub type MobcPool = Pool<RedisConnectionManager>;
+pub type RedisPool = deadpool_redis::Pool;
 
 #[derive(thiserror::Error, Debug)]
 pub enum OperationError<T>
@@ -16,14 +10,14 @@ where
     T: std::error::Error + std::fmt::Debug,
 {
     #[error("Error getting a connection from the pool: '{0}'")]
-    GetConnection(mobc::Error<RedisError>),
+    GetConnection(PoolError<RedisError>),
     #[error(transparent)]
     ClientError(#[from] T),
 }
 
 #[derive(thiserror::Error, Debug)]
-#[error("Failed to connect to redis: '{0}'")]
-pub struct ConnectError(#[from] RedisError);
+#[error("Failed to create Redis pool: '{0}'")]
+pub struct ConnectError(#[from] deadpool_redis::CreatePoolError);
 
 #[derive(thiserror::Error, Debug)]
 #[error("Failed to set value '{1}' to key '{0}': '{2}'")]
@@ -51,43 +45,16 @@ pub enum DeleteError {
     Delete(String, RedisError),
 }
 
-pub struct ConnectionConfig {
-    cache_pool_expire_seconds: u64,
-    cache_pool_max_open: u64,
-    cache_pool_max_idle: u64,
-    cache_pool_timeout_seconds: u64,
-}
-
-impl From<RedisConfig> for ConnectionConfig {
-    fn from(value: RedisConfig) -> Self {
-        Self {
-            cache_pool_expire_seconds: value.cache_pool_expire_seconds,
-            cache_pool_max_open: value.cache_pool_max_open,
-            cache_pool_max_idle: value.cache_pool_max_idle,
-            cache_pool_timeout_seconds: value.cache_pool_timeout_seconds,
-        }
-    }
-}
-
-pub fn connect(addr: &str, config: ConnectionConfig) -> Result<MobcPool, ConnectError> {
-    let client = redis::Client::open(addr)?;
-    // Make sure that we can connect to Redis
-    let _connection = client.get_connection()?;
-    let manager = RedisConnectionManager::new(client);
-    let from_secs = Duration::from_secs(config.cache_pool_expire_seconds);
-    Ok(Pool::builder()
-        .get_timeout(Some(Duration::from_secs(config.cache_pool_timeout_seconds)))
-        .max_open(config.cache_pool_max_open)
-        .max_idle(config.cache_pool_max_idle)
-        .max_lifetime(Some(from_secs))
-        .build(manager))
+pub fn connect(config: &deadpool_redis::Config) -> Result<RedisPool, ConnectError> {
+    let pool = config.create_pool(Some(Runtime::Tokio1))?;
+    Ok(pool)
 }
 
 pub async fn set_str(
-    pool: &MobcPool,
+    pool: &RedisPool,
     key: String,
     value: String,
-    ttl_seconds: Option<usize>,
+    ttl_seconds: Option<i64>,
 ) -> Result<(), OperationError<SetError>> {
     let mut con = pool.get().await.map_err(OperationError::GetConnection)?;
     con.set(&key, &value)
@@ -102,7 +69,7 @@ pub async fn set_str(
 }
 
 pub async fn get_str(
-    pool: &MobcPool,
+    pool: &RedisPool,
     key: String,
 ) -> Result<Option<String>, OperationError<GetError>> {
     let mut con = pool.get().await.map_err(OperationError::GetConnection)?;
@@ -118,7 +85,7 @@ pub async fn get_str(
     }
 }
 
-pub async fn exists(pool: &MobcPool, key: String) -> Result<bool, OperationError<ExistsError>> {
+pub async fn exists(pool: &RedisPool, key: String) -> Result<bool, OperationError<ExistsError>> {
     let mut con = pool.get().await.map_err(OperationError::GetConnection)?;
     let value = con
         .exists(&key)
@@ -127,7 +94,7 @@ pub async fn exists(pool: &MobcPool, key: String) -> Result<bool, OperationError
     FromRedisValue::from_redis_value(&value).map_err(|e| ExistsError::ParseError(key, e).into())
 }
 
-pub async fn delete_key(pool: &MobcPool, key: String) -> Result<(), OperationError<DeleteError>> {
+pub async fn delete_key(pool: &RedisPool, key: String) -> Result<(), OperationError<DeleteError>> {
     let mut con = pool.get().await.map_err(OperationError::GetConnection)?;
     con.del(&key)
         .await

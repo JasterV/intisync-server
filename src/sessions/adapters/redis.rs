@@ -1,6 +1,6 @@
 pub mod pool;
 
-use self::pool::MobcPool;
+use self::pool::RedisPool;
 use crate::sessions::port::{
     CreateSessionError, DeleteSessionError, ExistsSessionError, GetSessionStateError, SessionState,
     SessionStore, UpdateSessionStateError,
@@ -9,17 +9,17 @@ use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct Config {
-    pub session_ttl: Option<usize>,
+    pub session_ttl: Option<i64>,
 }
 
 #[derive(Clone)]
 pub struct RedisSessionStore {
-    pool: MobcPool,
+    pool: RedisPool,
     config: Config,
 }
 
 impl RedisSessionStore {
-    pub fn new(pool: MobcPool, config: Config) -> Self {
+    pub fn new(pool: RedisPool, config: Config) -> Self {
         Self { pool, config }
     }
 }
@@ -112,8 +112,7 @@ mod tests {
     impl AsyncTestContext for RedisSessionStore {
         async fn setup() -> Self {
             let config = Config::load();
-            let pool = pool::connect(&config.redis.addr(), config.redis.into())
-                .expect("Can't connect to redis");
+            let pool = pool::connect(&config.redis).expect("Can't connect to redis");
             RedisSessionStore::new(
                 pool,
                 super::Config {

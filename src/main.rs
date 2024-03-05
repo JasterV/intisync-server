@@ -4,7 +4,7 @@ mod sessions;
 mod socket;
 
 use crate::{actors::Auth, configuration::Config};
-use sessions::adapters::redis::{self, pool::ConnectionConfig, RedisSessionStore};
+use sessions::adapters::redis::{self, RedisSessionStore};
 use socketioxide::{
     extract::{SocketRef, TryData},
     SocketIoBuilder,
@@ -18,10 +18,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     tracing::subscriber::set_global_default(FmtSubscriber::default())?;
 
-    let pool = redis::pool::connect(
-        &config.redis.addr(),
-        ConnectionConfig::from(config.redis.clone()),
-    )?;
+    let pool = redis::pool::connect(&config.redis)?;
 
     let sessions = RedisSessionStore::new(
         pool,

@@ -1,5 +1,5 @@
 env_files = [
-  { path = "config/.env.dist.dev", profile = "development" },
+  { path = ".env", profile = "development" },
   { path = "config/.env.dist.ci", profile = "ci" },
 ]
 

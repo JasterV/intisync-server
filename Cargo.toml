@@ -16,9 +16,12 @@ tokio = { version = "1.36.0", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 uuid = { version = "1.7.0", features = ["v4", "serde"] }
-mobc = "0.8.3"
-mobc-redis = "0.8.2"
 serde_json = "1.0.114"
+deadpool = "0.10.0"
+deadpool-redis = { version = "0.14.0", features = ["serde"] }
+redis = { version = "0.24.0", default-features = false, features = [
+  "tokio-rustls-comp",
+] }
 
 [dev-dependencies]
 futures-util = "0.3.30"
