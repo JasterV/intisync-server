@@ -4,6 +4,7 @@ mod sessions;
 mod socket;
 
 use crate::{actors::Auth, configuration::Config};
+use axum::routing::get;
 use sessions::adapters::redis::{self, RedisSessionStore};
 use shuttle_secrets::SecretStore;
 use socketioxide::{
@@ -39,7 +40,9 @@ async fn main(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_
         }
     });
 
-    let app = axum::Router::new().layer(layer);
+    let app = axum::Router::new()
+        .route("/health-check", get(|| async { "ok" }))
+        .layer(layer);
 
     Ok(app.into())
 }
