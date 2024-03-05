@@ -5,20 +5,20 @@ mod socket;
 
 use crate::{actors::Auth, configuration::Config};
 use sessions::adapters::redis::{self, RedisSessionStore};
+use shuttle_secrets::SecretStore;
 use socketioxide::{
     extract::{SocketRef, TryData},
     SocketIoBuilder,
 };
-use tracing::info;
-use tracing_subscriber::FmtSubscriber;
 
-#[tokio::main]
-async fn main() -> Result<(), anyhow::Error> {
-    let config = Config::load();
+#[shuttle_runtime::main]
+async fn main(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_axum::ShuttleAxum {
+    // WARN: Remember to use a subscriber if we ever stop relying on Shuttle
+    // We don't use our own tracing subscriber now since Shuttle provides its own.
+    // tracing::subscriber::set_global_default(FmtSubscriber::default())?;
+    let config = Config::from(secret_store);
 
-    tracing::subscriber::set_global_default(FmtSubscriber::default())?;
-
-    let pool = redis::pool::connect(&config.redis)?;
+    let pool = redis::pool::connect(&config.redis).expect("Couldn't connect to redis");
 
     let sessions = RedisSessionStore::new(
         pool,
@@ -41,13 +41,5 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let app = axum::Router::new().layer(layer);
 
-    info!("Starting server");
-
-    let listener = tokio::net::TcpListener::bind(("0.0.0.0", config.port))
-        .await
-        .unwrap();
-
-    axum::serve(listener, app).await.unwrap();
-
-    Ok(())
+    Ok(app.into())
 }
