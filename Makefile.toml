@@ -11,14 +11,6 @@ args = ["clean"]
 command = "cargo"
 args = ["check", "${@}"]
 
-[tasks.run]
-command = "cargo"
-args = ["run", "${@}"]
-
-[tasks.build]
-command = "cargo"
-args = ["build", "${@}"]
-
 [tasks.test]
 command = "cargo"
 args = ["test", "${@}"]
