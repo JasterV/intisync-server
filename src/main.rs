@@ -6,18 +6,19 @@ mod socket;
 use crate::{actors::Auth, configuration::Config};
 use axum::routing::get;
 use sessions::adapters::redis::{self, RedisSessionStore};
-use shuttle_secrets::SecretStore;
 use socketioxide::{
     extract::{SocketRef, TryData},
     SocketIoBuilder,
 };
 
 #[shuttle_runtime::main]
-async fn main(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_axum::ShuttleAxum {
+async fn main() -> shuttle_axum::ShuttleAxum {
+    dotenvy::dotenv().ok();
+    let config = Config::load();
+
     // WARN: Remember to use a subscriber if we ever stop relying on Shuttle
     // We don't use our own tracing subscriber now since Shuttle provides its own.
     // tracing::subscriber::set_global_default(FmtSubscriber::default())?;
-    let config = Config::from(secret_store);
 
     let pool = redis::pool::connect(&config.redis).expect("Couldn't connect to redis");
 

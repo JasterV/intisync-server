@@ -25,6 +25,7 @@ redis = { version = "0.24.0", default-features = false, features = [
 shuttle-runtime = "0.40.0"
 shuttle-axum = "0.40.0"
 shuttle-secrets = "0.40.0"
+dotenvy = "0.15.7"
 
 [dev-dependencies]
 futures-util = "0.3.30"
