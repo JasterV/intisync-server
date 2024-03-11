@@ -19,7 +19,7 @@ uuid = { version = "1.7.0", features = ["v4", "serde"] }
 serde_json = "1.0.114"
 deadpool = "0.10.0"
 deadpool-redis = { version = "0.14.0", features = ["serde"] }
-redis = { version = "0.24.0", default-features = false, features = [
+redis = { version = "0.25.0", default-features = false, features = [
   "tokio-rustls-comp",
 ] }
 shuttle-runtime = "0.40.0"
