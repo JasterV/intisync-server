@@ -23,7 +23,7 @@ redis = { version = "0.25.0", default-features = false, features = [
   "tokio-rustls-comp",
 ] }
 shuttle-runtime = "0.40.0"
-shuttle-axum = "0.40.0"
+shuttle-axum = "0.42.0"
 shuttle-secrets = "0.41.0"
 dotenvy = "0.15.7"
 
