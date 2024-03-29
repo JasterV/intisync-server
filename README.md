@@ -1,3 +1,5 @@
+⚠️ This project has been archived in favor of [intisync.ex](https://github.com/JasterV/intisync.ex). As much as I love rust, building a real-time, fault-tolerant application was a thousand times easier and more maintainable with Elixir & Phoenix. Rust might be great for a lot of problems but this wasn't an appropiate use case for it, eventhough I had a lot of fun working on this ⚠️
+
 # IntiSync Server
 
 IntiSync Socket.io server.
